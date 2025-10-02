@@ -1,0 +1,410 @@
+---
+/**
+ * PUBLIC_INTERFACE
+ * Component: TicTacToe
+ * A complete two-player local Tic Tac Toe game with client-side logic, Ocean Professional theme,
+ * responsive layout, score/status bar at top, centered grid, and reset controls.
+ */
+---
+
+<section class="game card">
+  <header class="statusbar">
+    <div class="title">
+      <div class="logo">
+        <span class="dot dot-blue"></span>
+        <span class="dot dot-amber"></span>
+      </div>
+      <h1>Tic Tac Toe</h1>
+    </div>
+
+    <div class="scores">
+      <div class="score x">
+        <span class="label">X</span>
+        <span id="score-x" class="value">0</span>
+      </div>
+      <div class="score ties">
+        <span class="label">Tie</span>
+        <span id="score-tie" class="value">0</span>
+      </div>
+      <div class="score o">
+        <span class="label">O</span>
+        <span id="score-o" class="value">0</span>
+      </div>
+    </div>
+
+    <div id="turn-indicator" class="turn">
+      <span class="pill"><strong>Turn:</strong> <span id="turn-player">X</span></span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <button class="cell" data-idx="0" aria-label="Cell 1" />
+    <button class="cell" data-idx="1" aria-label="Cell 2" />
+    <button class="cell" data-idx="2" aria-label="Cell 3" />
+    <button class="cell" data-idx="3" aria-label="Cell 4" />
+    <button class="cell" data-idx="4" aria-label="Cell 5" />
+    <button class="cell" data-idx="5" aria-label="Cell 6" />
+    <button class="cell" data-idx="6" aria-label="Cell 7" />
+    <button class="cell" data-idx="7" aria-label="Cell 8" />
+    <button class="cell" data-idx="8" aria-label="Cell 9" />
+  </div>
+
+  <footer class="controls">
+    <div class="message" id="status-message" role="status" aria-live="polite">Player X, make your move.</div>
+    <div class="buttons">
+      <button id="reset-round" class="btn surface" aria-label="Reset current round">New Round</button>
+      <button id="reset-all" class="btn danger" aria-label="Reset scores and board">Reset All</button>
+    </div>
+  </footer>
+</section>
+
+<style>
+  .game {
+    width: 100%;
+    max-width: 680px;
+    padding: 20px 20px 16px;
+    backdrop-filter: saturate(1.1) blur(8px);
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  }
+  .game:hover {
+    box-shadow: var(--shadow-strong);
+  }
+
+  .statusbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0)) ;
+    position: relative;
+  }
+  body.dark-theme .statusbar {
+    background: linear-gradient(180deg, rgba(17,24,39,0.6), rgba(17,24,39,0));
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .title h1 {
+    font-size: 20px;
+    margin: 0;
+    letter-spacing: 0.2px;
+  }
+
+  .logo {
+    position: relative;
+    width: 28px;
+    height: 28px;
+  }
+  .dot {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 999px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+  .dot-blue { background: var(--primary); top: 0; left: 0; }
+  .dot-amber { background: var(--secondary); bottom: 0; right: 0; }
+
+  .scores {
+    display: inline-grid;
+    grid-auto-flow: column;
+    gap: 8px;
+    background: rgba(0,0,0,0.03);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 8px;
+  }
+  body.dark-theme .scores { background: rgba(255,255,255,0.06); }
+
+  .score {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .score .label {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .score .value {
+    font-weight: 700;
+    min-width: 20px;
+    text-align: right;
+  }
+  .score.x .label { color: var(--primary); }
+  .score.o .label { color: var(--secondary); }
+
+  .turn {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .pill {
+    background: linear-gradient(90deg, rgba(37,99,235,0.12), transparent 60%);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+  }
+  .pill strong { color: var(--muted); margin-right: 6px; }
+  #turn-player {
+    color: var(--primary);
+    font-weight: 800;
+    letter-spacing: 0.4px;
+  }
+
+  .grid {
+    margin: 18px auto 14px;
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 1/1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--grid-gap);
+    padding: 14px;
+    border-radius: var(--radius-lg);
+    background:
+      linear-gradient(180deg, rgba(37,99,235,0.08), rgba(255,255,255,0.6)),
+      var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .cell {
+    appearance: none;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    display: grid;
+    place-items: center;
+    font-size: clamp(40px, 9vw, 58px);
+    font-weight: 800;
+    color: var(--text);
+    cursor: pointer;
+    transition: transform var(--transition), background-color var(--transition), box-shadow var(--transition), border-color var(--transition), color var(--transition);
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .cell:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-strong);
+  }
+  .cell:disabled {
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow);
+    opacity: 0.95;
+  }
+  .cell .mark {
+    transform: scale(0.9);
+    transition: transform var(--transition);
+  }
+  .cell.filled .mark {
+    transform: scale(1);
+  }
+  .cell.win {
+    background:
+      linear-gradient(120deg, rgba(245,158,11,0.18), rgba(37,99,235,0.18));
+    border-color: transparent;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px 0;
+  }
+
+  .message {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .buttons {
+    display: inline-flex;
+    gap: 10px;
+  }
+
+  .btn {
+    appearance: none;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition), background-color var(--transition);
+    letter-spacing: 0.2px;
+  }
+
+  .btn.surface {
+    color: #0b2a6b;
+    background: linear-gradient(180deg, rgba(37,99,235,0.12), rgba(255,255,255,0.9));
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  body.dark-theme .btn.surface { color: #dbeafe; }
+  .btn.surface:hover { transform: translateY(-1px); box-shadow: var(--shadow-strong); }
+
+  .btn.danger {
+    background: linear-gradient(180deg, rgba(239,68,68,0.15), rgba(239,68,68,0.06));
+    color: #b91c1c;
+    border: 1px solid rgba(239,68,68,0.35);
+    box-shadow: var(--shadow);
+  }
+  body.dark-theme .btn.danger { color: #fecaca; border-color: rgba(248,113,113,0.5); }
+  .btn.danger:hover { transform: translateY(-1px); box-shadow: var(--shadow-strong); }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    .game { padding: 16px; }
+    .statusbar { grid-template-columns: 1fr; gap: 8px; }
+    .scores { justify-content: center; }
+    .turn { justify-content: center; }
+    .controls { grid-template-columns: 1fr; gap: 8px; }
+    .buttons { justify-content: center; }
+    .grid { max-width: 460px; }
+  }
+</style>
+
+<script>
+  // Game state and logic, fully client-side
+  (function () {
+    const WIN_PATTERNS = [
+      [0,1,2], [3,4,5], [6,7,8], // rows
+      [0,3,6], [1,4,7], [2,5,8], // cols
+      [0,4,8], [2,4,6],          // diagonals
+    ];
+
+    let board = Array(9).fill(null);
+    let xIsNext = true;
+    let isGameOver = false;
+
+    const cells = Array.from(document.querySelectorAll('.cell'));
+    const scoreXEl = document.getElementById('score-x');
+    const scoreOEl = document.getElementById('score-o');
+    const scoreTieEl = document.getElementById('score-tie');
+    const statusEl = document.getElementById('status-message');
+    const turnPlayerEl = document.getElementById('turn-player');
+
+    const resetRoundBtn = document.getElementById('reset-round');
+    const resetAllBtn = document.getElementById('reset-all');
+
+    const scores = { X: 0, O: 0, T: 0 };
+
+    function renderBoard() {
+      board.forEach((mark, idx) => {
+        const cell = cells[idx];
+        cell.innerHTML = '';
+        cell.classList.remove('filled', 'win');
+        if (mark) {
+          const span = document.createElement('span');
+          span.className = 'mark';
+          span.textContent = mark;
+          span.style.color = mark === 'X' ? getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() : getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim();
+          cell.appendChild(span);
+          cell.classList.add('filled');
+          cell.disabled = true;
+        } else {
+          cell.disabled = isGameOver; // if game over, lock remaining cells
+        }
+      });
+    }
+
+    function setStatusMessage(text) {
+      statusEl.textContent = text;
+    }
+
+    function setTurnIndicator() {
+      turnPlayerEl.textContent = xIsNext ? 'X' : 'O';
+      turnPlayerEl.style.color = xIsNext ? getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() : getComputedStyle(document.documentElement).getPropertyValue('--secondary').trim();
+    }
+
+    function updateScores() {
+      scoreXEl.textContent = String(scores.X);
+      scoreOEl.textContent = String(scores.O);
+      scoreTieEl.textContent = String(scores.T);
+    }
+
+    function checkWinner() {
+      for (const [a,b,c] of WIN_PATTERNS) {
+        if (board[a] && board[a] === board[b] && board[b] === board[c]) {
+          return { winner: board[a], line: [a,b,c] };
+        }
+      }
+      if (board.every(Boolean)) return { winner: null, tie: true };
+      return null;
+    }
+
+    function highlightWin(line) {
+      line.forEach(idx => cells[idx].classList.add('win'));
+      // Disable remaining cells
+      cells.forEach(c => c.disabled = true);
+    }
+
+    function handleMove(idx) {
+      if (isGameOver || board[idx]) return;
+      board[idx] = xIsNext ? 'X' : 'O';
+      xIsNext = !xIsNext;
+      renderBoard();
+
+      const result = checkWinner();
+      if (result && result.winner) {
+        isGameOver = true;
+        scores[result.winner] += 1;
+        updateScores();
+        highlightWin(result.line);
+        setStatusMessage(`Player ${result.winner} wins!`);
+      } else if (result && result.tie) {
+        isGameOver = true;
+        scores.T += 1;
+        updateScores();
+        setStatusMessage('It’s a tie.');
+      } else {
+        setTurnIndicator();
+        setStatusMessage(`Player ${xIsNext ? 'X' : 'O'}, make your move.`);
+      }
+    }
+
+    function resetRound() {
+      board = Array(9).fill(null);
+      isGameOver = false;
+      xIsNext = true;
+      setTurnIndicator();
+      setStatusMessage('Player X, make your move.');
+      cells.forEach(c => { c.disabled = false; c.classList.remove('win', 'filled'); c.innerHTML = ''; });
+    }
+
+    function resetAll() {
+      scores.X = 0; scores.O = 0; scores.T = 0;
+      updateScores();
+      resetRound();
+    }
+
+    // Attach events
+    cells.forEach(cell => {
+      cell.addEventListener('click', () => {
+        const idx = Number(cell.getAttribute('data-idx'));
+        handleMove(idx);
+      });
+    });
+    resetRoundBtn.addEventListener('click', resetRound);
+    resetAllBtn.addEventListener('click', resetAll);
+
+    // Initial render
+    updateScores();
+    setTurnIndicator();
+    setStatusMessage('Player X, make your move.');
+    renderBoard();
+  })();
+</script>
